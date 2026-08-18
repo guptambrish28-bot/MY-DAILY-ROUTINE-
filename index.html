@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Daily Routine</title>
+<style>
+body{font-family:Arial;margin:0;background:#f4f6f4;color:#222}
+header{background:#263238;color:white;padding:20px;text-align:center}
+h1{margin:0} .box{max-width:700px;margin:auto;padding:12px}
+section{margin:15px 0;background:white;border-radius:12px;overflow:hidden}
+h2{margin:0;padding:12px;background:#d9ead3;font-size:18px}
+.row{display:flex;align-items:center;padding:13px;border-top:1px solid #ddd}
+.time{width:120px;color:#777;font-size:13px}
+.task{flex:1}input[type=checkbox]{width:22px;height:22px}
+.done{text-decoration:line-through;color:#888}
+.progress{background:#ddd;height:10px;border-radius:10px}
+#bar{background:#70ad47;height:10px;width:0;border-radius:10px}
+.stats{text-align:center;padding:10px;font-weight:bold}
+.spend{padding:15px;background:#fff;border-radius:12px}
+.spend input{padding:8px;width:120px}
+.mistake h2{background:#f4cccc}
+</style>
+</head>
+
+<body>
+<header>
+<h1>MY DAILY ROUTINE</h1>
+<div id="date"></div>
+<div class="stats">Progress: <span id="percent">0%</span></div>
+<div class="progress"><div id="bar"></div></div>
+</header>
+
+<div class="box" id="app"></div>
+
+<script>
+const data=[
+["🌅 MORNING","Wake up","7:30 AM"],
+["🌅 MORNING","Water",""],
+["🌅 MORNING","Gym","8:00 AM"],
+["🌅 MORNING","Breakfast — Clean Food",""],
+["📚 LEARNING","Trading Learning","10:30–11:30 AM"],
+["📚 LEARNING","VKS Class","12:00–2:00 PM"],
+["☀️ AFTERNOON","Lunch",""],
+["☀️ AFTERNOON","Rest","3:00–5:00 PM"],
+["🌆 EVENING","VKS Class","7:00–9:30 PM"],
+["🌆 EVENING","Dinner",""],
+["🌙 NIGHT","Journal",""],
+["🌙 NIGHT","Sleep","12:00 AM"],
+["🔔 DAILY REMINDER","5L Water",""],
+["🔔 DAILY REMINDER","High-Protein Diet",""],
+["🔔 DAILY REMINDER","Only Necessary Spending",""],
+["🔔 DAILY REMINDER","Trading Backtest",""]
+];
+
+let key="routine-"+new Date().toDateString();
+let saved=JSON.parse(localStorage.getItem(key)||"{}");
+
+document.getElementById("date").innerText=
+new Date().toLocaleDateString(undefined,{
+weekday:"long",day:"numeric",month:"long",year:"numeric"
+});
+
+let app=document.getElementById("app");
+let groups={};
+
+data.forEach((x,i)=>{
+if(!groups[x[0]])groups[x[0]]=[];
+groups[x[0]].push([x[1],x[2],i]);
+});
+
+function render(){
+app.innerHTML="";
+let done=0;
+
+Object.keys(groups).forEach(g=>{
+let sec=document.createElement("section");
+let h=document.createElement("h2");
+h.innerText=g;
+sec.appendChild(h);
+
+groups[g].forEach(x=>{
+let r=document.createElement("div");
+r.className="row";
+
+let t=document.createElement("span");
+t.className="time";
+t.innerText=x[1];
+
+let n=document.createElement("span");
+n.className="task";
+n.innerText=x[0];
+
+let c=document.createElement("input");
+c.type="checkbox";
+c.checked=!!saved[x[2]];
+
+if(c.checked){
+n.classList.add("done");
+done++;
+}
+
+c.onchange=()=>{
+saved[x[2]]=c.checked;
+localStorage.setItem(key,JSON.stringify(saved));
+render();
+};
+
+r.append(t,n,c);
+sec.appendChild(r);
+});
+
+app.appendChild(sec);
+});
+
+let p=Math.round(done/data.length*100);
+document.getElementById("percent").innerText=p+"%";
+document.getElementById("bar").style.width=p+"%";
+
+let s=document.createElement("div");
+s.className="spend";
+s.innerHTML='💰 <b>Only Necessary Spending</b><br><br>Amount ₹ <input id="money" type="number" placeholder="Enter amount">';
+app.appendChild(s);
+
+let money=document.getElementById("money");
+money.value=localStorage.getItem(key+"money")||"";
+money.oninput=()=>localStorage.setItem(key+"money",money.value);
+
+let m=document.createElement("section");
+m.className="mistake";
+m.innerHTML="<h2>⚠️ MISTAKE TO AVOID</h2><div class='row'>Over-scrolling / unnecessary screen time</div>";
+app.appendChild(m);
+}
+render();
+</script>
+</body>
+</html>
