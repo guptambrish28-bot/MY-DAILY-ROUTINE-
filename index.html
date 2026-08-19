@@ -52,14 +52,21 @@ const data=[
 ["🔔 DAILY REMINDER","Trading Backtest",""]
 ];
 
-let key="routine-"+new Date().toDateString();
+let offset = Number(new URLSearchParams(location.search).get("day") || 0);
+let selectedDate = new Date();
+selectedDate.setDate(selectedDate.getDate() + offset);
+
+function changeDay(days){
+  location.href = "?day=" + (offset + days);
+}
+
+let key="routine-"+selectedDate.toDateString();
 let saved=JSON.parse(localStorage.getItem(key)||"{}");
 
 document.getElementById("date").innerText=
 new Date().toLocaleDateString(undefined,{
 weekday:"long",day:"numeric",month:"long",year:"numeric"
-});
-
+}
 let app=document.getElementById("app");
 let groups={};
 
